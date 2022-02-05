@@ -8,6 +8,7 @@ const {
     addTurn,
     lightsOn,
     showTurns,
+    playerTurn,
 } = require('../game');
 
 beforeAll(() => {
@@ -36,6 +37,12 @@ describe('game object contains correct keys', () => {
     });
     test('turnNumber key exists', () => {
         expect('turnNumber' in game).toBe(true);
+    });
+    test('turnInProgress key exist', () => {
+        expect('turnInProgress' in game).toBe(true);
+    });
+    test('lastButton key exist', () => {
+        expect('lastButton' in game).toBe(true);
     });
 });
 
@@ -69,6 +76,12 @@ describe('newGame works correctly', () => {
             expect(element.getAttribute('data-listener')).toEqual('true');
         }
     });
+    test('turnInProgress is set to true while computer is showing', () => {
+        showTurns();
+        expect(game.turnInProgress).toBe(true);
+    })
+
+
     //Should need to contain check that 'light' is added to clicked circle
     // and that players move is filled up with the correct id.
 });
@@ -100,4 +113,15 @@ describe('gameplay works correctly', () => {
         showTurns();
         expect(game.turnNumber).toBe(0);
     });
+    test('should increment the score if the turn is correct', () => {
+        game.playerMoves.push(game.currentGame[0]);
+        playerTurn();
+        expect(game.score).toBe(1);
+    });
+    test('clicking during computer sequence should fail', () => {
+        showTurns();
+        game.lastButton = '';
+        document.getElementById('button2').click();
+        expect(game.lastButton).toEqual('');
+    })
 });
