@@ -5,6 +5,9 @@ const {
     game,
     newGame,
     showScore,
+    addTurn,
+    lightsOn,
+    showTurns,
 } = require('../game');
 
 beforeAll(() => {
@@ -13,7 +16,7 @@ beforeAll(() => {
     document.open();
     document.write(fileContents);
     document.close();
-})
+});
 
 describe('game object contains correct keys', () => {
     test('score key exist', () => {
@@ -31,6 +34,9 @@ describe('game object contains correct keys', () => {
     test('choices contains the correct ids', () => {
         expect(game.choices).toEqual(['button1', 'button2', 'button3', 'button4']);
     });
+    test('turnNumber key exists', () => {
+        expect('turnNumber' in game).toBe(true);
+    });
 });
 
 describe('newGame works correctly', () => {
@@ -38,6 +44,7 @@ describe('newGame works correctly', () => {
         game.score = 42;
         game.playerMoves = ['button1', 'button2', 'button3', 'button4'];
         game.currentGame = ['button1', 'button2', 'button3', 'button4'];
+        game.turnNumber = 5;
         document.getElementById('score').innerText = '42';
         newGame();
     });
@@ -47,10 +54,50 @@ describe('newGame works correctly', () => {
     test('should empty playerMoves array', () => {
         expect(game.playerMoves.length).toBe(0);
     });
-    test('should empty currentGame array', () => {
-        expect(game.currentGame.length).toEqual(0);
+    test('should be one move in the computers game array', () => {
+        expect(game.currentGame.length).toEqual(1);
     });
     test('should display 0 for the element with id of score', () => {
         expect(document.getElementById('score').innerText).toEqual(0);
     });
-})
+    test('should set the turn number to zero', () => {
+        expect(game.turnNumber).toEqual(0);
+    });
+    test('expect data-listener to be true', () => {
+        const elements = document.getElementsByClassName('circle');
+        for(let element of elements){
+            expect(element.getAttribute('data-listener')).toEqual('true');
+        }
+    });
+    //Should need to contain check that 'light' is added to clicked circle
+    // and that players move is filled up with the correct id.
+});
+
+describe('gameplay works correctly', () => {
+    beforeEach(() => {
+        game.score = 0;
+        game.currentGame = [];
+        game.playerMoves = [];
+        addTurn();
+    });
+    afterEach(() => {
+        game.score = 0;
+        game.currentGame = [];
+        game.playerMoves = [];
+
+    });
+    test('addTurn adds a new turn to the game', () => {
+        addTurn();
+        expect(game.currentGame.length).toBe(2);
+    });
+    test('should add correct class to light up the buttons', () => {
+        let button = document.getElementById(game.currentGame[0]);
+        lightsOn(game.currentGame[0]);
+        expect(button.classList).toContain('light');
+    });
+    test('showTurns should update game.turnNumber', () => {
+        game.turnNumber = 42;
+        showTurns();
+        expect(game.turnNumber).toBe(0);
+    });
+});
